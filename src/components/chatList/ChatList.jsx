@@ -11,14 +11,15 @@ const ChatList = () => {
             <hr />
             <span className="title">RECENT CHATS</span>
             <div className='list'>
-                <Link to="/dashboard/1">Chat 1</Link>
-                <Link to="/dashboard/2">Chat 2</Link>
-                <Link to="/dashboard/3">Chat 3</Link>
-                <Link to="/dashboard/4">Chat 4</Link>
-                <Link to="/dashboard/5">Chat 5</Link>
-                <Link to="/dashboard/6">Chat 6</Link>
-                <Link to="/dashboard/7">Chat 7</Link>
-                <Link to="/dashboard/8">Chat 8</Link>
+            <Link to="/dashboard/chat/1">Chat 1</Link>
+            <Link to="/dashboard/chat/2">Chat 2</Link>
+            <Link to="/dashboard/chat/3">Chat 3</Link>
+            <Link to="/dashboard/chat/4">Chat 4</Link>
+            <Link to="/dashboard/chat/5">Chat 5</Link>
+            <Link to="/dashboard/chat/6">Chat 6</Link>
+            <Link to="/dashboard/chat/7">Chat 7</Link>
+            <Link to="/dashboard/chat/8">Chat 8</Link>
+
             </div>
             <hr />
             <div className='upgrade'>
