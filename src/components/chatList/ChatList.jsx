@@ -1,7 +1,18 @@
+
 import { Link } from 'react-router-dom'
 import './ChatList.css'
+import { useGetConversationByUserId } from '../../hooks/use-get-conversation'
+import { useDeleteConversation } from '../../hooks/use-delete-conversation';
 
 const ChatList = () => {
+    const {data: conversationList} = useGetConversationByUserId('d3c53862-d59a-4a28-9b2a-99a1792fbb97');
+    const deleteConversation = useDeleteConversation();
+
+    const handleDelete = (e, id) => {
+        e.preventDefault();
+        deleteConversation.mutate(id);
+    };
+
     return (
         <div className='chatList'>
             <span className="title">DASHBOARD</span>
@@ -11,15 +22,26 @@ const ChatList = () => {
             <hr />
             <span className="title">RECENT CHATS</span>
             <div className='list'>
-            <Link to="/dashboard/chat/1">Chat 1</Link>
-            <Link to="/dashboard/chat/2">Chat 2</Link>
-            <Link to="/dashboard/chat/3">Chat 3</Link>
-            <Link to="/dashboard/chat/4">Chat 4</Link>
-            <Link to="/dashboard/chat/5">Chat 5</Link>
-            <Link to="/dashboard/chat/6">Chat 6</Link>
-            <Link to="/dashboard/chat/7">Chat 7</Link>
-            <Link to="/dashboard/chat/8">Chat 8</Link>
-
+                {conversationList?.map((item) => (
+                    <div key={item.id} className="chat-list-item" style={{ display: 'flex', alignItems: 'center' }}>
+                        <Link to={`/dashboard/chat/${item.id}`} style={{ flex: 1 }}>{item.title}</Link>
+                        <button
+                            className="delete-btn"
+                            onClick={(e) => handleDelete(e, item.id)}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: '#888',
+                                fontSize: '18px',
+                                cursor: 'pointer',
+                                paddingRight: '15px'
+                            }}
+                            title="Delete chat"
+                        >
+                            ×
+                        </button>
+                    </div>
+                ))}
             </div>
             <hr />
             <div className='upgrade'>

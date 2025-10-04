@@ -3,35 +3,67 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+}
 
-  .wrapper {
-    flex: 1;
-    overflow-y: scroll;
-    width: 100%;
+.wrapper {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  flex-direction: column;
+
+  &::-webkit-scrollbar { display: none; }
+  scrollbar-width: none;
+
+  .chat {
+    width: min(900px, 90%);
     display: flex;
-    justify-content: center;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-
-    scrollbar-width: none;
-
-    .chat {
-      width: 50%;
-      display: flex;
-      flex-direction: column;
-
-      .message {
-        padding: 20px;
-
-        &.user {
-          background-color: #2c2937;
-          border-radius: 20px;
-          max-width: 80%;
-          align-self: flex-end;
-        }
-      }
-    }
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 40px;
   }
+}
+
+.message {
+  display: inline-block;      
+  padding: 12px 16px;
+  border-radius: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;       
+  overflow-wrap: break-word;    
+  word-break: break-word;      
+  max-width: 75%;              
+}
+
+/* user bubble -> kanan */
+.message.user {
+  align-self: flex-end;
+  background-color: #2c2937;
+  color: #fff;
+}
+
+/* assistant bubble -> kiri */
+.message.ai {
+  align-self: flex-start;
+  background-color: #f1f3f5;
+  color: #111;
+}
+
+/* loading small style */
+.message .loading {
+  font-style: italic;
+  color: #777;
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to { visibility: hidden; }
+}
+
+
+@media (max-width: 480px) {
+  .message { max-width: 90%; padding: 10px 12px; }
+  .chat { width: 100%; }
 }

@@ -1,6 +1,24 @@
-import './dashboardPage.css'
+
+
+import { useState } from 'react';
+import './dashboardPage.css';
+import ChatPage from '../chatPage/chatPage';
+
 
 const DashboardPage = () => {
+    const [isChatStarted, setIsChatStarted] = useState(false);
+    const [input, setInput] = useState("");
+
+    const handleFormSubmit = (e) => {
+        e.preventDefault();
+        if (!input.trim()) return;
+        setIsChatStarted(true);
+    };
+
+    if (isChatStarted) {
+     return <ChatPage />;
+    }
+
     return (
         <div className='dashboardPage'>
             <div className="texts">
@@ -24,15 +42,20 @@ const DashboardPage = () => {
                 </div>
             </div>
             <div className="formContainer">
-                <form className="form">
-                    <input type="text" placeholder="Ask me anything" />
+                <form className="form" onSubmit={handleFormSubmit}>
+                    <input
+                        type="text"
+                        placeholder="Ask me anything"
+                        value={input}
+                        onChange={e => setInput(e.target.value)}
+                    />
                     <button type="submit">
                         <img src="/arrow.png" alt="" />
                     </button>
                 </form>
             </div>
         </div>
-    )
+    );
 }
 
 export default DashboardPage
