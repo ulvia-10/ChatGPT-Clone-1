@@ -23,5 +23,6 @@ export function useGetConversationByUserId(userId) {
     queryKey: ["conversation", userId],
     queryFn: () => fetchConversationByUserId(userId),
     enabled: !!userId,
+    staleTime: 0,
   });
 }

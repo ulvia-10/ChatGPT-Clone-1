@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 async function deleteConversationById(id) {
 	const res = await fetch(
@@ -15,15 +15,16 @@ async function deleteConversationById(id) {
 		throw new Error("Failed to delete conversation");
 	}
 
-	return res.json();
+	const text = await res.text();
+	try {
+		return text ? JSON.parse(text) : true;
+	} catch {
+		return true;
+	}
 }
 
 export function useDeleteConversation() {
-	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: deleteConversationById,
-		onSuccess: (data, id) => {
-			queryClient.invalidateQueries({ queryKey: ["conversation", id] });
-		},
 	});
 }

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import NewPrompt from "../../components/newPrompt/newPrompt";
 import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
 import "./chatPage.css";
 import { useParams } from "react-router-dom";
 import { useGetConversationHistory } from "../../hooks/use-get-historical-conversation";
@@ -13,7 +14,7 @@ const ChatPage = () => {
 
   const {data: conversationList} = useGetConversationHistory(id);
   const [messages, setMessages] = useState([]);
-  
+
   useEffect(() => {
     if (conversationList && Array.isArray(conversationList.messages)) {
       setMessages(conversationList.messages);
@@ -64,7 +65,7 @@ const ChatPage = () => {
               className={`message ${msg.role === "user" ? "user" : "ai"}${msg.loading ? " bling" : ""}`}
             >
               {msg.role === "assistant" ? (
-                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeHighlight]}>{msg.content}</ReactMarkdown>
               ) : (
                 msg.content
               )}

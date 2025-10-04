@@ -3,10 +3,42 @@ import { Link } from 'react-router-dom'
 import './ChatList.css'
 import { useGetConversationByUserId } from '../../hooks/use-get-conversation'
 import { useDeleteConversation } from '../../hooks/use-delete-conversation';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+
 
 const ChatList = () => {
-    const {data: conversationList} = useGetConversationByUserId('9765e7ee-7fc0-45a1-80ea-fa5cf0cefe43');
+    const {userId} = JSON.parse(localStorage.getItem("USER"));
+    const {data: conversationList} = useGetConversationByUserId(userId);
+    const list = Array.isArray(conversationList) ? conversationList : [];
+    console.log('conversationList', conversationList, 'list', list);
     const deleteConversation = useDeleteConversation();
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        console.log('deleteConversation status:', {
+            isSuccess: deleteConversation.isSuccess,
+            isError: deleteConversation.isError,
+            error: deleteConversation.error,
+            isLoading: deleteConversation.isLoading,
+            data: deleteConversation.data
+        });
+        if (deleteConversation.isSuccess) {
+            queryClient.invalidateQueries({ queryKey: ["conversation", userId] });
+            queryClient.refetchQueries({ queryKey: ["conversation", userId] });
+        }
+        if (deleteConversation.isError) {
+            alert('Delete error: ' + (deleteConversation.error?.message || 'Unknown error'));
+        }
+    }, [
+        deleteConversation.isSuccess,
+        deleteConversation.isError,
+        deleteConversation.error,
+        deleteConversation.isLoading,
+        deleteConversation.data,
+        queryClient,
+        userId
+    ]);
 
     const handleDelete = (e, id) => {
         e.preventDefault();
@@ -22,7 +54,7 @@ const ChatList = () => {
             <hr />
             <span className="title">RECENT CHATS</span>
             <div className='list'>
-                {conversationList?.map((item) => (
+                {list.map((item) => (
                     <div key={item.id} className="chat-list-item" style={{ display: 'flex', alignItems: 'center' }}>
                         <Link to={`/dashboard/chat/${item.id}`} style={{ flex: 1 }}>{item.title}</Link>
                         <button

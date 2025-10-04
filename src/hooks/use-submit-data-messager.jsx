@@ -3,12 +3,13 @@ import { v4 as uuidv4 } from "uuid";
 
 const postMessage = async ({ data, onChunk }) => {
   const newId = uuidv4();
+  const {userId} = JSON.parse(localStorage.getItem("USER"));
   const response = await fetch("https://chat-chatcuek.satrya.dev/api/chat", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ ...data, stream: true, conversationId: newId, userId: newId  }),
+    body: JSON.stringify({ ...data, stream: true, conversationId: newId, userId: userId }),
   });
 
   if (!response.body) throw new Error("ReadableStream not supported");
