@@ -7,7 +7,6 @@ const postMessage = async ({ data, onChunk }) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
     },
     body: JSON.stringify({ ...data, stream: true, conversationId: newId, userId: newId  }),
   });
@@ -53,7 +52,7 @@ const postMessage = async ({ data, onChunk }) => {
   }
 };
 
-export const useGetMessager = () => {
+export const useSubmitMessagerData = () => {
   return useMutation({
     mutationFn: postMessage,
   });

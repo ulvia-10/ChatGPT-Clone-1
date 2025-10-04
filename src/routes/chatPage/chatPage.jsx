@@ -1,20 +1,19 @@
 import { useState, useRef, useEffect } from "react";
-import { useGetMessager } from "../../hooks/use-get-data-messager";
 import NewPrompt from "../../components/newPrompt/newPrompt";
 import ReactMarkdown from "react-markdown";
 import "./chatPage.css";
 import { useParams } from "react-router-dom";
 import { useGetConversationHistory } from "../../hooks/use-get-historical-conversation";
+import { useSubmitMessagerData } from "../../hooks/use-submit-data-messager";
 
 const ChatPage = () => {
   const endRef = useRef(null);
-  const mutation = useGetMessager();
+  const mutation = useSubmitMessagerData();
   const {id} = useParams()
 
   const {data: conversationList} = useGetConversationHistory(id);
   const [messages, setMessages] = useState([]);
-
-  // Sync messages with conversationList when it changes
+  
   useEffect(() => {
     if (conversationList && Array.isArray(conversationList.messages)) {
       setMessages(conversationList.messages);
@@ -25,13 +24,11 @@ const ChatPage = () => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  console.log(conversationList, 'CONVV APAA?')
-
   const handleSend = (userText) => {
     setMessages((prev) => [
       ...prev,
       { role: "user", content: userText },
-      { role: "assistant", content: "berpikir sejenak..." },
+      { role: "assistant", content: "_berpikir sejenak..._", loading: true },
     ]);
 
     mutation.mutate({
@@ -43,10 +40,11 @@ const ChatPage = () => {
           const newMsgs = [...prev];
           const lastMsg = newMsgs[newMsgs.length - 1];
           if (lastMsg.role === "assistant") {
-            if (lastMsg.content === "berpikir sejenak...") {
-              lastMsg.content = token; 
+            if (lastMsg.content === "_berpikir sejenak..._" || lastMsg.loading) {
+              lastMsg.content = token;
+              delete lastMsg.loading;
             } else {
-              lastMsg.content += token; 
+              lastMsg.content += token;
             }
             newMsgs[newMsgs.length - 1] = { ...lastMsg };
           }
@@ -61,7 +59,10 @@ const ChatPage = () => {
       <div className="wrapper">
         <div className="chat">
           {messages.map((msg, i) => (
-            <div key={i} className={`message ${msg.role === "user" ? "user" : "ai"}`}>
+            <div
+              key={i}
+              className={`message ${msg.role === "user" ? "user" : "ai"}${msg.loading ? " bling" : ""}`}
+            >
               {msg.role === "assistant" ? (
                 <ReactMarkdown>{msg.content}</ReactMarkdown>
               ) : (

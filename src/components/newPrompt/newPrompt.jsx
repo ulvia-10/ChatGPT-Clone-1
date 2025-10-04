@@ -1,10 +1,11 @@
 import { useState } from "react";
 import "./newPrompt.css";
-import { useGetMessager } from "../../hooks/use-get-data-messager";
+import { useSubmitMessagerData } from "../../hooks/use-submit-data-messager";
+
 
 const NewPrompt = ({ setMessages }) => {
   const [input, setInput] = useState("");
-  const mutationMessage = useGetMessager();
+  const mutationMessage = useSubmitMessagerData();
 
   const handleSubmit = (e) => {
     e.preventDefault();
