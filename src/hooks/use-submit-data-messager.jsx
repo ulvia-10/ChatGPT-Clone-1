@@ -1,13 +1,17 @@
+/* eslint-disable no-constant-condition */
 import { useMutation } from "@tanstack/react-query";
-import { v4 as uuidv4 } from "uuid";
 
-const postMessage = async ({ data, onChunk, userId }) => {
-  const newId = uuidv4();
-
-  const response = await fetch("https://chat-chatcuek.satrya.dev/api/chat", {
+const postMessage = async ({ data, onChunk }) => {
+  // conversationId, message, model, userId sudah harus dikirim dari data
+  const response = await fetch("https://chat-chatcuek.satrya.dev/api/chat/anthropic", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...data, stream: true, conversationId: newId, userId }),
+    body: JSON.stringify({
+      conversationId: data.conversationId,
+      message: data.messages,
+      model: data.model,
+      userId: data.userId
+    }),
   });
 
   if (!response.body) throw new Error("ReadableStream not supported");
@@ -51,7 +55,7 @@ const postMessage = async ({ data, onChunk, userId }) => {
 
 export const useSubmitMessagerData = () => {
   return useMutation({
-    mutationFn: ({ data, onChunk, userId }) =>
-      postMessage({ data, onChunk, userId }),
+    mutationFn: ({ data, onChunk, model }) =>
+      postMessage({ data, onChunk, model }),
   });
 };

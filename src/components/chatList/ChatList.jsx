@@ -1,33 +1,23 @@
 
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './ChatList.css'
 import { useGetConversationByUserId } from '../../hooks/use-get-conversation'
 import { useDeleteConversation } from '../../hooks/use-delete-conversation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
-
+import { v4 as uuidv4 } from 'uuid';
 
 const ChatList = () => {
     const { user, isLoaded } = useUser();
     const userId = user?.id;
-    if (!isLoaded) {
-        return <div>Loading...</div>;
-    }
-
-    const {data: conversationList} = useGetConversationByUserId(userId);
+    const { data: conversationList } = useGetConversationByUserId(userId);
     const list = Array.isArray(conversationList) ? conversationList : [];
     const deleteConversation = useDeleteConversation();
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        console.log('deleteConversation status:', {
-            isSuccess: deleteConversation.isSuccess,
-            isError: deleteConversation.isError,
-            error: deleteConversation.error,
-            isLoading: deleteConversation.isLoading,
-            data: deleteConversation.data
-        });
         if (deleteConversation.isSuccess) {
             queryClient.invalidateQueries({ queryKey: ["conversation", userId] });
             queryClient.refetchQueries({ queryKey: ["conversation", userId] });
@@ -50,10 +40,19 @@ const ChatList = () => {
         deleteConversation.mutate(id);
     };
 
+    const handleCreateNewChat = () => {
+        const newId = uuidv4();
+        navigate(`/dashboard/chat/${newId}`);
+    };
+
+    if (!isLoaded) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className='chatList'>
             <span className="title">DASHBOARD</span>
-            <Link to="/dashboard">Create a new chat</Link>
+            <button onClick={handleCreateNewChat} style={{ background: 'none', border: 'none', color: '#605e68', cursor: 'pointer', marginBottom: 8 }}>Create a new chat</button>
             <Link to="/">Explore Cuekin AI</Link>
             <Link to="/">Contact</Link>
             <hr />

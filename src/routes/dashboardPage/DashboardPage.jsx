@@ -1,23 +1,18 @@
-
-
 import { useState } from 'react';
 import './dashboardPage.css';
-import ChatPage from '../chatPage/chatPage';
-
+import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
 const DashboardPage = () => {
-    const [isChatStarted, setIsChatStarted] = useState(false);
     const [input, setInput] = useState("");
+    const navigate = useNavigate();
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
         if (!input.trim()) return;
-        setIsChatStarted(true);
+        const newId = uuidv4();
+        navigate(`/dashboard/chat/${newId}`);
     };
-
-    if (isChatStarted) {
-     return <ChatPage />;
-    }
 
     return (
         <div className='dashboardPage'>

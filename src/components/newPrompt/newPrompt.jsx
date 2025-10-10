@@ -1,56 +1,33 @@
 import { useState } from "react";
 import "./newPrompt.css";
-import { useSubmitMessagerData } from "../../hooks/use-submit-data-messager";
-import { useQueryClient } from "@tanstack/react-query";
-import { useUser } from "@clerk/clerk-react";
+import { useUploadFile } from "../../hooks/use-upload-file";
 
-
-const NewPrompt = ({ setMessages }) => {
+const NewPrompt = ({ setMessages, onSend }) => {
   const [input, setInput] = useState("");
   const [isRecording, setIsRecording] = useState(false);
-  
-  const mutationMessage = useSubmitMessagerData();
-  const queryClient = useQueryClient();
-    const { user, isLoaded } = useUser();
-    const userId = user?.id;
+  const [file, setFile] = useState(null);
+  const uploadFileMutation = useUploadFile();
 
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [uploadedFilePath, setUploadedFilePath] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
-
-    setMessages((prev) => [...prev, { role: "user", content: input }]);
-    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-
-    let aiReply = "";
-    mutationMessage.mutate(
-      {
-        data: { message: input },
-        onChunk: (token) => {
-          aiReply += token;
-
-          setMessages((prev) => {
-            const newMsgs = [...prev];
-            const lastMsg = newMsgs[newMsgs.length - 1];
-
-            if (lastMsg?.role === "assistant") {
-              newMsgs[newMsgs.length - 1] = {
-                ...lastMsg,
-                content: aiReply,
-              };
-            }
-            return newMsgs;
-          });
-        },
-      },
-      {
-        onError: (err) => console.error("Error:", err),
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["conversation", userId] });
-        }
+    if (!input.trim() && !file) return;
+    if (file) {
+      setUploadStatus("Uploading...");
+      try {
+        const result = await uploadFileMutation.mutateAsync(file);
+        setUploadedFilePath(result.filePath);
+        setUploadStatus("Upload berhasil!");
+      } catch (error) {
+        setUploadStatus("Upload gagal!");
       }
-    );
-
+      setFile(null);
+    }
+    if (onSend && input.trim()) {
+      onSend(input);
+    }
     setInput("");
   };
 
@@ -72,7 +49,10 @@ const NewPrompt = ({ setMessages }) => {
     };
     recognition.onerror = () => setIsRecording(false);
     recognition.onend = () => setIsRecording(false);
+  };
 
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
   };
 
   return (
@@ -80,7 +60,18 @@ const NewPrompt = ({ setMessages }) => {
       <label htmlFor="file">
         <img src="/attachment.png" alt="attach" />
       </label>
-      <input id="file" type="file" hidden />
+      <input id="file" type="file" hidden onChange={handleFileChange} />
+      {/* Feedback upload */}
+      {uploadStatus && (
+        <div style={{ color: uploadStatus === "Upload berhasil!" ? "green" : "red", marginLeft: 8 }}>
+          {uploadStatus}
+          {uploadedFilePath && (
+            <span style={{ display: "block", fontSize: 12 }}>
+              File URL: <a href={uploadedFilePath} target="_blank" rel="noopener noreferrer">{uploadedFilePath}</a>
+            </span>
+          )}
+        </div>
+      )}
 
       <input
         type="text"
@@ -98,8 +89,8 @@ const NewPrompt = ({ setMessages }) => {
       >
         {isRecording ? '🎤...' : '🎤'}
       </button>
-      <button type="submit" disabled={!input.trim() || mutationMessage.isPending}>
-        {mutationMessage.isPending ? "..." : <img src="/arrow.png" alt="send" />}
+      <button type="submit" disabled={!input.trim() && !file}>
+        <img src="/arrow.png" alt="send" />
       </button>
     </form>
   );

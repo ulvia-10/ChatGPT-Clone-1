@@ -3,24 +3,41 @@ import NewPrompt from "../../components/newPrompt/newPrompt";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import "./chatPage.css";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import { useGetConversationHistory } from "../../hooks/use-get-historical-conversation";
 import { useSubmitMessagerData } from "../../hooks/use-submit-data-messager";
 import { useUser } from "@clerk/clerk-react";
+import { useModels } from "./hook /use -model";
+import { useQueryClient } from '@tanstack/react-query';
 
 const ChatPage = () => {
   const endRef = useRef(null);
-  const {user} = useUser()
+  const { user } = useUser();
   const userId = user?.id;
-  const mutation = useSubmitMessagerData(userId);
-  const {id} = useParams()
-
-  const {data: conversationList} = useGetConversationHistory(id);
-  const [messages, setMessages] = useState([]);
-
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [conversationId, setConversationId] = useState(id);
   useEffect(() => {
-    if (conversationList && Array.isArray(conversationList.messages)) {
+    if (!id) {
+      const newId = uuidv4();
+      setConversationId(newId);
+      navigate(`/dashboard/chat/${newId}`, { replace: true });
+    } else {
+      setConversationId(id); // update conversationId setiap kali id berubah
+    }
+  }, [id, navigate]);
+
+  const mutation = useSubmitMessagerData(userId);
+  const { data: conversationList } = useGetConversationHistory(conversationId);
+  const { models } = useModels();
+  const [messages, setMessages] = useState([]);
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (conversationList?.messages) {
       setMessages(conversationList.messages);
+    } else {
+      setMessages([]);
     }
   }, [conversationList]);
 
@@ -28,18 +45,27 @@ const ChatPage = () => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // handleSubmit akan dipanggil oleh NewPrompt
   const handleSend = (userText) => {
     setMessages((prev) => [
       ...prev,
       { role: "user", content: userText },
       { role: "assistant", content: "_berpikir sejenak..._", loading: true },
     ]);
-
+    const modelName = models?.[0]?.name || "default";
     mutation.mutate({
-      data: { model: "gpt-3.5-turbo", messages: [{ role: "user", content: userText }] },
+      data: {
+        model: 'claude-3-5-haiku-latest',
+        messages: userText,
+        userId: userId,
+        conversationId: conversationId,
+      },
       onChunk: (token) => {
-        if (token === "[DONE]") return;
-
+        if (token === "[DONE]") {
+          // invalidate conversation list agar chat list auto-refresh
+          queryClient.invalidateQueries({ queryKey: ["conversation", userId] });
+          return;
+        }
         setMessages((prev) => {
           const newMsgs = [...prev];
           const lastMsg = newMsgs[newMsgs.length - 1];
@@ -76,7 +102,6 @@ const ChatPage = () => {
           ))}
           <div ref={endRef}></div>
         </div>
-
         <NewPrompt onSend={handleSend} setMessages={setMessages} />
       </div>
     </div>
