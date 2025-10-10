@@ -1,9 +1,20 @@
-version: '3.8'
-services:
-  frontend:
-    build: .
-    ports:
-      - "3000:80"
-    restart: unless-stopped
-    container_name: cuekin-web
+version: '3.9'
 
+services:
+  cuekin-web:
+    build:
+      context: .
+      args:
+        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY}
+        VITE_IMAGE_KIT_ENDPOINT: ${VITE_IMAGE_KIT_ENDPOINT}
+        VITE_IMAGE_KIT_PUBLIC_KEY: ${VITE_IMAGE_KIT_PUBLIC_KEY}
+        CHAT_GPT_KEY: ${CHAT_GPT_KEY}
+    container_name: cuekin-container
+    ports:
+      - "8080:80"
+    environment:
+      VITE_CLERK_PUBLISHABLE_KEY: pk_test_aWRlYWwtc3VuYmlyZC00Mi5jbGVyay5hY2NvdW50cy5kZXYk
+      VITE_IMAGE_KIT_ENDPOINT: https://ik.imagekit.io/kd0na9yqk
+      VITE_IMAGE_KIT_PUBLIC_KEY: ${VITE_IMAGE_KIT_PUBLIC_KEY}
+      CHAT_GPT_KEY: ${CHAT_GPT_KEY}
+    restart: unless-stopped

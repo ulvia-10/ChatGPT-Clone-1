@@ -10,7 +10,9 @@ const NewPrompt = ({ setMessages }) => {
   
   const mutationMessage = useSubmitMessagerData();
   const queryClient = useQueryClient();
-  const {userId} = JSON.parse(localStorage.getItem("USER"));
+  const userData = JSON.parse(localStorage.getItem("USER") || "{}");
+    const userId = userData?.userId;
+
 
   const handleSubmit = (e) => {
     e.preventDefault();

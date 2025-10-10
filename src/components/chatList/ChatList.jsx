@@ -8,10 +8,11 @@ import { useEffect } from 'react';
 
 
 const ChatList = () => {
-    const {userId} = JSON.parse(localStorage.getItem("USER"));
+    const userData = JSON.parse(localStorage.getItem("USER") || "{}");
+const userId = userData?.userId;
+
     const {data: conversationList} = useGetConversationByUserId(userId);
     const list = Array.isArray(conversationList) ? conversationList : [];
-    console.log('conversationList', conversationList, 'list', list);
     const deleteConversation = useDeleteConversation();
     const queryClient = useQueryClient();
 
