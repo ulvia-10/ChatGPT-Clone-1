@@ -1,17 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 
-const postMessage = async ({ data, onChunk }) => {
+const postMessage = async ({ data, onChunk, userId }) => {
   const newId = uuidv4();
-  const userData = JSON.parse(localStorage.getItem("USER") || "{}");
-  const userId = userData?.userId;
 
   const response = await fetch("https://chat-chatcuek.satrya.dev/api/chat", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ ...data, stream: true, conversationId: newId, userId: userId }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...data, stream: true, conversationId: newId, userId }),
   });
 
   if (!response.body) throw new Error("ReadableStream not supported");
@@ -45,9 +41,7 @@ const postMessage = async ({ data, onChunk }) => {
         const json = JSON.parse(raw);
         const token = json?.choices?.[0]?.delta?.content ?? "";
 
-        if (token) {
-          onChunk(token);
-        }
+        if (token) onChunk(token);
       } catch (e) {
         onChunk(raw);
       }
@@ -57,6 +51,7 @@ const postMessage = async ({ data, onChunk }) => {
 
 export const useSubmitMessagerData = () => {
   return useMutation({
-    mutationFn: postMessage,
+    mutationFn: ({ data, onChunk, userId }) =>
+      postMessage({ data, onChunk, userId }),
   });
 };

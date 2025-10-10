@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./newPrompt.css";
 import { useSubmitMessagerData } from "../../hooks/use-submit-data-messager";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUser } from "@clerk/clerk-react";
 
 
 const NewPrompt = ({ setMessages }) => {
@@ -10,8 +11,8 @@ const NewPrompt = ({ setMessages }) => {
   
   const mutationMessage = useSubmitMessagerData();
   const queryClient = useQueryClient();
-  const userData = JSON.parse(localStorage.getItem("USER") || "{}");
-    const userId = userData?.userId;
+    const { user, isLoaded } = useUser();
+    const userId = user?.id;
 
 
   const handleSubmit = (e) => {

@@ -6,10 +6,13 @@ import "./chatPage.css";
 import { useParams } from "react-router-dom";
 import { useGetConversationHistory } from "../../hooks/use-get-historical-conversation";
 import { useSubmitMessagerData } from "../../hooks/use-submit-data-messager";
+import { useUser } from "@clerk/clerk-react";
 
 const ChatPage = () => {
   const endRef = useRef(null);
-  const mutation = useSubmitMessagerData();
+  const {user} = useUser()
+  const userId = user?.id;
+  const mutation = useSubmitMessagerData(userId);
   const {id} = useParams()
 
   const {data: conversationList} = useGetConversationHistory(id);

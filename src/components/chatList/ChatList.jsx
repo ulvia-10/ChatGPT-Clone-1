@@ -5,11 +5,15 @@ import { useGetConversationByUserId } from '../../hooks/use-get-conversation'
 import { useDeleteConversation } from '../../hooks/use-delete-conversation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { useUser } from '@clerk/clerk-react';
 
 
 const ChatList = () => {
-    const userData = JSON.parse(localStorage.getItem("USER") || "{}");
-const userId = userData?.userId;
+    const { user, isLoaded } = useUser();
+    const userId = user?.id;
+    if (!isLoaded) {
+        return <div>Loading...</div>;
+    }
 
     const {data: conversationList} = useGetConversationByUserId(userId);
     const list = Array.isArray(conversationList) ? conversationList : [];
