@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useGetConversationHistory } from "../../hooks/use-get-historical-conversation";
 import { useSubmitMessagerData } from "../../hooks/use-submit-data-messager";
 import { useUser } from "@clerk/clerk-react";
-import { useModels } from "./hook /use-model";
+import { useModels } from "./hook/use-model";
 import { useQueryClient } from '@tanstack/react-query';
 
 const ChatPage = () => {
